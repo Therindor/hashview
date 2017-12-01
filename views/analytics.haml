@@ -50,6 +50,141 @@
       .container
         .row
           .col-md-6
+            .panel.panel-default
+              .panel-heading
+                %b Total Hashes Cracked
+              .panel-body
+                %div{id: 'TotalHashesCracked'}
+                :plain
+                  <script src= '/js/d3.min.js'></script>
+                  <script type= "text/javascript">
+                    var url = '/analytics/graph/TotalHashesCracked?customer_id=#{@customer_id}&hashfile_id=#{@hashfile_id}';
+                    var data2 = [];
+                    d3.json(url, function(error, json){
+                      $.each(json, function(d,i){
+                        data2.push({
+                          label: i.label,
+                          value: i.value
+                        })
+                      })
+                      var w = 200;
+                      var h = 200;
+                      var r = h/2;
+                      var iw = 50;
+
+                      var color = d3.scaleOrdinal()
+                        .range(['#d9534f', '#5cb85c']);  //'#FFBF00', '#0000FF', '#008C00']);
+                      var visual7 = d3.select('#TotalHashesCracked').append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+                      var pie = d3.pie().value(function(d){return d.value;});
+                      var arc = d3.arc().innerRadius(r - iw).outerRadius(r);
+
+                      var arcs = visual7.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+
+                      arcs.append("svg:path")
+                        .attr("fill", function(d, i){
+                          return color(i);
+                          })
+                        .attr("stroke-width", 2.0)
+                        .attr("d", function (d) {
+                          console.log(arc(d));
+                          return arc(d);
+                        });
+                      arcs.append("svg:text").attr("transform", function(d){
+                        d.innerRadius = 0;
+                        d.outerRadius = r;
+                        return "translate(" + arc.centroid(d) + ")";});
+
+                      var legend = d3.select("#TotalHashesCracked").append("svg")
+                        .attr("class", "legend")
+                        .attr("width", r * 2)
+                        .attr("height", r * 2)
+                        .selectAll("g")
+                        .data(color.domain().slice())
+                        .enter().append("g")
+                        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+                      legend.append("rect")
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", color);
+
+                      legend.append("text")
+                        .attr("x", 24)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("font-family","Calibri")
+                        .text(function( d,i ) {return data2[i].label +": " + data2[i].value })
+                        .style("font-size","px");
+                      })
+                    </script>
+          .col-md-6
+            - if !@cracked_pw_count && !@uncracked_pw_count #@cracked_results.nil?
+              No results for this job. Perhaps it was never started?
+            - else
+              .panel.panel-default
+                .panel-heading
+                  %b Composition Breakdown
+                .panel-body
+                  %div{id:  "TotalHashesCracked", :style => 'text-align:center'}
+                  //cred to http://jsfiddle.net/ragingsquirrel3/qkHK6 for this
+                  :plain
+                    <script src= '/js/d3.min.js'></script>
+                    <script type= "text/javascript">
+                      var data = [{"label":"Fails Complexity", "value":"#{@fails_complexity_count}"},
+                        {"label":"Meets Complexity", "value":"#{@meets_complexity_count}"}];
+                      var w = 200;
+                      var h = 200;
+                      var r = h/2;
+                      var iw = 50;
+
+                      //d3.select("body").append("svg").attr("width", 50).attr("height", 50).append("circle").attr("cx", 25).attr("cy", 25).attr("r", 25).style("fill", "purple");
+                      var color = d3.scaleOrdinal()
+                        .range(['#d9534f', '#5cb85c']);  //'#FFBF00', '#0000FF', '#008C00']);
+                      var visual1 = d3.select('#chart2').append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+                      var pie = d3.pie().value(function(d){return d.value;});
+                      var arc = d3.arc().innerRadius(r - iw).outerRadius(r);
+
+                      var arcs = visual1.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+
+
+                      arcs.append("svg:path")
+                        .attr("fill", function(d, i){
+                          return color(i);
+                          })
+                        .attr("stroke-width", 2.0)
+                        .attr("d", function (d) {
+                          console.log(arc(d));
+                          return arc(d);
+                        });
+                      arcs.append("svg:text").attr("transform", function(d){
+                        d.innerRadius = 0;
+                        d.outerRadius = r;
+                        return "translate(" + arc.centroid(d) + ")";});
+
+                      var legend = d3.select("#chart2").append("svg")
+                        .attr("class", "legend")
+                        .attr("width", r * 2)
+                        .attr("height", r * 2)
+                        .selectAll("g")
+                        .data(color.domain().slice())
+                        .enter().append("g")
+                        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+                      legend.append("rect")
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", color);
+
+                      legend.append("text")
+                        .attr("x", 24)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("font-family","Calibri")
+                        .text(function( d,i ) {return data[i].label +": " + data[i].value })
+                        .style("font-size","px");
+                    </script>
+                  %br
+          .col-md-6
             - if !@cracked_pw_count && !@uncracked_pw_count #@cracked_results.nil?
               No results for this job. Perhaps it was never started?
             - else
@@ -240,7 +375,7 @@
                           Cracked
                         &nbsp;
                         %a.btn.btn-danger.pull-center{href: "/download?graph=3&type=uncracked&customer_id=#{@customer_id}&hashfile_id=#{@hashfile_id}"}
-                          Uncracked 
+                          Uncracked
           .col-md-6
             .panel.panel-default
               .panel-heading
@@ -255,6 +390,121 @@
                     %td #{key}
                     %td #{value.to_f.round(1)} %
                     %tr
+                %br
+          .col-md-6
+            .panel.panel-default
+              .panel-heading
+                %b Charset Breakdown
+              .panel-body
+                %div{id:  "chart6", :style => 'text-align:center'}
+                //cred to http://jsfiddle.net/ragingsquirrel3/qkHK6 for this
+                :plain
+                    <script src= '/js/d3.min.js'></script>
+                    <script src="https://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+                    <script src="/js/d3pie.min.js"></script>
+                    <script type= "text/javascript">
+
+                      var url = '/analytics/graph4?customer_id=#{@customer_id}&hashfile_id=#{@hashfile_id}';
+                      var data = [];
+                      d3.json(url, function(error, json){
+                        $.each(json, function(d,i){
+                          data.push({
+                            label: i.label,
+                            value: i.value
+                          })
+                        })
+                        var pie = new d3pie("chart6", {
+                          "header": {
+                            "title": {
+                              "fontSize": 22,
+                              "font": "verdana"
+                              },
+                            },
+                            "size": {
+                              "canvasHeight": 200,
+                              "canvasWidth": 590,
+                              "pieInnerRadius": "52%",
+                              "pieOuterRadius": "63%"
+                            },
+                            "data": {
+                              "content": data
+                            },
+                            "labels": {
+                              "outer": {
+                                "pieDistance": 0
+                              }
+                            }
+                        });
+                      });
+                    </script>
+          .col-md-6
+            .panel.panel-default
+              .panel-heading
+                %b Charset Breakdown Doughnut
+              .panel-body
+                %div{id: 'chart7'}
+                :plain
+                  <script src= '/js/d3.min.js'></script>
+                  <script type= "text/javascript">
+                    var url = '/analytics/graph4?customer_id=#{@customer_id}&hashfile_id=#{@hashfile_id}';
+                    var data2 = [];
+                    d3.json(url, function(error, json){
+                      $.each(json, function(d,i){
+                        data2.push({
+                          label: i.label,
+                          value: i.value
+                        })
+                      })
+                      var w = 200;
+                      var h = 200;
+                      var r = h/2;
+                      var iw = 50;
+
+                      var color = d3.scaleOrdinal()
+                        .range(['#d9534f', '#5cb85c']);  //'#FFBF00', '#0000FF', '#008C00']);
+                      var visual7 = d3.select('#chart7').append("svg:svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+                      var pie = d3.pie().value(function(d){return d.value;});
+                      var arc = d3.arc().innerRadius(r - iw).outerRadius(r);
+
+                      var arcs = visual7.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+
+                      arcs.append("svg:path")
+                        .attr("fill", function(d, i){
+                          return color(i);
+                          })
+                        .attr("stroke-width", 2.0)
+                        .attr("d", function (d) {
+                          console.log(arc(d));
+                          return arc(d);
+                        });
+                      arcs.append("svg:text").attr("transform", function(d){
+                        d.innerRadius = 0;
+                        d.outerRadius = r;
+                        return "translate(" + arc.centroid(d) + ")";});
+
+                      var legend = d3.select("#chart7").append("svg")
+                        .attr("class", "legend")
+                        .attr("width", r * 2)
+                        .attr("height", r * 2)
+                        .selectAll("g")
+                        .data(color.domain().slice())
+                        .enter().append("g")
+                        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+                      legend.append("rect")
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", color);
+
+                      legend.append("text")
+                        .attr("x", 24)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("font-family","Calibri")
+                        .text(function( d,i ) {return data2[i].label +": " + data2[i].value })
+                        .style("font-size","px");
+                      })
+                  </script>
           .col-md-12
             .panel.panel-default
               .panel-heading

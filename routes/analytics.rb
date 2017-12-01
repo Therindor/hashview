@@ -98,8 +98,6 @@ get '/analytics' do
       end
       @top_5_masks['OTHER'] = (100 - total).to_s
 
-
-      # make list of unique hashes
       unique_hashes = Set.new
       @total_users_originalhash.each do |entry|
         unique_hashes.add(entry.originalhash)
@@ -286,6 +284,22 @@ get '/analytics' do
   haml :analytics
 end
 
+# Callback for d3 graph for displaying Total Hashes Cracked
+get '/analytics/graph/TotalHashesCracked' do
+  varWash(params)
+
+  @cracked_pw_count = repository(:default).adapter.select('SELECT COUNT(h.originalhash) FROM hashes h LEFT JOIN hashfilehashes a ON h.id = a.hash_id WHERE (h.cracked = 1)')[0].to_s
+  @uncracked_pw_count = repository(:default).adapter.select('SELECT COUNT(h.originalhash) FROM hashes h LEFT JOIN hashfilehashes a ON h.id = a.hash_id WHERE (h.cracked = 0)')[0].to_s
+  mass = []
+  content = []
+  content << { "label":"cracked", "value":5 }
+  content << { "label":"uncracked", "value":4 }
+  data = {"content": content}
+  mass << data
+  p content.to_json
+  return content.to_json
+end
+
 # callback for d3 graph displaying passwords by length
 get '/analytics/graph1' do
   varWash(params)
@@ -411,6 +425,22 @@ get '/analytics/graph3' do
   @top10basewords.each do |key, value|
     @topbasewords << { password: key, count: value }
   end
-
+  p @topbasewords.to_json
   return @topbasewords.to_json
+end
+
+# callback for d3 graph displaying Charset Breakdowns
+get '/analytics/graph4' do
+  varWash(params)
+
+  @cracked_pw_count = repository(:default).adapter.select('SELECT COUNT(h.originalhash) FROM hashes h LEFT JOIN hashfilehashes a ON h.id = a.hash_id WHERE (h.cracked = 1)')[0].to_s
+  @uncracked_pw_count = repository(:default).adapter.select('SELECT COUNT(h.originalhash) FROM hashes h LEFT JOIN hashfilehashes a ON h.id = a.hash_id WHERE (h.cracked = 0)')[0].to_s
+  mass = []
+  content = []
+  content << { "label":"cracked", "value":5 }
+  content << { "label":"uncracked", "value":4 }
+  data = {"content": content}
+  mass << data
+  p content.to_json
+  return content.to_json
 end
